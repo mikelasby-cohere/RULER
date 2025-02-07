@@ -1,0 +1,24 @@
+# ruler docker container
+docker run \
+    --ipc=host \
+    --tty \
+    --interactive \
+    --detach \
+    --network host \
+    --workdir /workspace/RULER/scripts \
+    -v ~/RULER:/workspace/RULER \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    cphsieh/ruler:0.2.0
+    bash
+
+   #  bash run.sh Qwen2.5-7B-Instruct-1M synthetic
+
+
+docker run \
+    --ipc=host \
+    --network host \
+    --workdir /workspace/RULER/scripts \
+    -v ~/RULER:/workspace/RULER \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    cphsieh/ruler:0.2.0
+    pwd && cd /workspace/RULER/scripts && pwd && ls && bash run.sh Qwen2.5-7B-Instruct-1M synthetic

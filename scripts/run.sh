@@ -25,7 +25,7 @@ fi
 # Root Directories
 GPUS="1" # GPU size for tensor_parallel.
 ROOT_DIR="benchmark_root" # the path that stores generated task samples and model predictions.
-MODEL_DIR="../.." # the path that contains individual model folders from HUggingface.
+MODEL_DIR="/root/.cache/huggingface/hub" # the path that contains individual model folders from HUggingface.
 ENGINE_DIR="." # the path that contains individual engine folders from TensorRT-LLM.
 BATCH_SIZE=1  # increase to improve GPU utilization
 
@@ -34,6 +34,7 @@ BATCH_SIZE=1  # increase to improve GPU utilization
 source config_models.sh
 MODEL_NAME=${1}
 MODEL_CONFIG=$(MODEL_SELECT ${MODEL_NAME} ${MODEL_DIR} ${ENGINE_DIR})
+echo $MODEL_CONFIG
 IFS=":" read MODEL_PATH MODEL_TEMPLATE_TYPE MODEL_FRAMEWORK TOKENIZER_PATH TOKENIZER_TYPE OPENAI_API_KEY GEMINI_API_KEY AZURE_ID AZURE_SECRET AZURE_ENDPOINT <<< "$MODEL_CONFIG"
 if [ -z "${MODEL_PATH}" ]; then
     echo "Model: ${MODEL_NAME} is not supported"
@@ -58,30 +59,31 @@ if [ -z "${TASKS}" ]; then
 fi
 
 
-# Start server (you may want to run in other container.)
-if [ "$MODEL_FRAMEWORK" == "vllm" ]; then
-    python pred/serve_vllm.py \
-        --model=${MODEL_PATH} \
-        --tensor-parallel-size=${GPUS} \
-        --dtype bfloat16 \
-        --disable-custom-all-reduce \
-        &
+# start in seperate!
+# # Start server (you may want to run in other container.)
+# if [ "$MODEL_FRAMEWORK" == "vllm" ]; then
+#     python pred/serve_vllm.py \
+#         --model=${MODEL_PATH} \
+#         --tensor-parallel-size=${GPUS} \
+#         --dtype bfloat16 \
+#         --disable-custom-all-reduce \
+#         &
 
-elif [ "$MODEL_FRAMEWORK" == "trtllm" ]; then
-    python pred/serve_trt.py \
-        --model_path=${MODEL_PATH} \
-        &
+# elif [ "$MODEL_FRAMEWORK" == "trtllm" ]; then
+#     python pred/serve_trt.py \
+#         --model_path=${MODEL_PATH} \
+#         &
 
-elif [ "$MODEL_FRAMEWORK" == "sglang" ]; then
-    python -m sglang.launch_server \
-        --model-path ${MODEL_PATH} \
-        --tp ${GPUS} \
-        --port 5000 \
-        --enable-flashinfer \
-        &
-    # use sglang/test/killall_sglang.sh to kill sglang server if it hangs
+# elif [ "$MODEL_FRAMEWORK" == "sglang" ]; then
+#     python -m sglang.launch_server \
+#         --model-path ${MODEL_PATH} \
+#         --tp ${GPUS} \
+#         --port 5000 \
+#         --enable-flashinfer \
+#         &
+#     # use sglang/test/killall_sglang.sh to kill sglang server if it hangs
 
-fi
+# fi
 
 
 # Start client (prepare data / call model API / obtain final metrics)

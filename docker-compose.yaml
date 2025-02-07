@@ -1,0 +1,31 @@
+services:
+  server:
+    image: vllm/vllm-openai:latest # Example server image (you can use your own)
+    container_name: vllm_server # Optional, but good practice
+    ports:
+      - "8080:80" # Map port 80 on the container to 8080 on the host
+    networks:
+      - my-network # Add the container to the network
+    gpus: all
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+
+    runtime: nvidia
+    ipc: host
+    entrypoint: python ./
+
+  client:
+    image: cphsieh/ruler:0.2.0 # A small image with curl for making requests
+    container_name: ruler_client
+    depends_on:
+      # Ensure server starts first
+      - server
+    command: [ "sh", "-c", "sleep 5 && curl http://my_server:80" ] # Wait and then make request
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    # Define the custom network
+
+    # docker compose run 

@@ -40,6 +40,11 @@ MODEL_SELECT() {
             MODEL_TEMPLATE_TYPE="meta-llama3"
             MODEL_FRAMEWORK="vllm"
             ;;
+        Qwen2.5-7B-Instruct-1M)
+            MODEL_PATH="${MODEL_DIR}/models--Qwen--Qwen2.5-7B-Instruct-1M/snapshots/e28526f7bb80e2a9c8af03b831a9af3812f18fba/"
+            MODEL_TEMPLATE_TYPE="base"
+            MODEL_FRAMEWORK="vllm"
+            ;;
         jamba1.5-mini)
             MODEL_PATH="${MODEL_DIR}/Jamba-1.5-Mini"
             MODEL_TEMPLATE_TYPE="jamba"

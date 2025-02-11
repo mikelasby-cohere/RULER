@@ -33,5 +33,14 @@ docker run \
     pwd && cd /workspace/RULER/scripts && pwd && ls && bash run.sh Qwen2.5-14B-Instruct-1M synthetic
 
 
-bash run.sh Qwen2.5-14B-Instruct-1M synthetic 2>&1 | tee Qwen2.5-14B-Instruct-1M-RULER.log
-bash run.sh Qwen2.5-7B-Instruct-1M synthetic 2>&1 | tee Qwen2.5-7B-Instruct-1M-RULER.log
+python3 -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab')" && bash run.sh Qwen2.5-14B-Instruct-1M synthetic 2>&1 | tee Qwen2.5-14B-Instruct-1M-RULER.log
+python3 -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab')" && bash run.sh Qwen2.5-7B-Instruct-1M synthetic 2>&1 | tee Qwen2.5-7B-Instruct-1M-RULER.log
+
+docker run --runtime nvidia --gpus all \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    --ipc=host \
+    --detach \
+    --interactive \
+    --tty \
+    vllm/vllm-openai:latest \
+    bash

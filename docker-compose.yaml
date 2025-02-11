@@ -2,17 +2,28 @@ services:
   server:
     image: vllm/vllm-openai:latest # Example server image (you can use your own)
     container_name: vllm_server # Optional, but good practice
-    ports:
-      - "8080:80" # Map port 80 on the container to 8080 on the host
-    networks:
-      - my-network # Add the container to the network
-    gpus: all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    ipc: host
+    network_mode: host
     volumes:
       - ~/.cache/huggingface:/root/.cache/huggingface
-
-    runtime: nvidia
-    ipc: host
-    entrypoint: python ./
+      - ~/vllm:/vllm-workspace/vllm
+    working_dir: /vllm-workspace/vllm
+    environment:
+      LD_LIBRARY_PATH: /usr/local/cuda/compat
+    command: [
+      "python3",
+      "serve_vllm_ruler.py",
+      "--model",
+      "Qwen/Qwen2.5-7B-Instruct-1M",
+      "--enforce-eager"
+    ]
 
   client:
     image: cphsieh/ruler:0.2.0 # A small image with curl for making requests
@@ -20,12 +31,22 @@ services:
     depends_on:
       # Ensure server starts first
       - server
-    command: [ "sh", "-c", "sleep 5 && curl http://my_server:80" ] # Wait and then make request
-    networks:
-      - my-network
-
-networks:
-  my-network:
-    # Define the custom network
-
-    # docker compose run 
+    working_dir: /workspace/RULER/scripts
+    network_mode: host
+    volumes:
+      - ~/RULER:/workspace/RULER
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    command: [
+      "python3",
+      "-c",
+      "import nltk; nltk.download('punkt')",
+      "&&",
+      "bash",
+      "run.sh",
+      "Qwen2.5-14B-Instruct-1M",
+      "synthetic",
+      "2&1>",
+      "|",
+      "tee",
+      "output.log"
+    ]

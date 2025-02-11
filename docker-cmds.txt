@@ -31,3 +31,7 @@ docker run \
     -v ~/.cache/huggingface:/root/.cache/huggingface \
     cphsieh/ruler:0.2.0
     pwd && cd /workspace/RULER/scripts && pwd && ls && bash run.sh Qwen2.5-14B-Instruct-1M synthetic
+
+
+bash run.sh Qwen2.5-14B-Instruct-1M synthetic 2>&1 | tee Qwen2.5-14B-Instruct-1M-RULER.log
+bash run.sh Qwen2.5-7B-Instruct-1M synthetic 2>&1 | tee Qwen2.5-7B-Instruct-1M-RULER.log

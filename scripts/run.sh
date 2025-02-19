@@ -24,7 +24,7 @@ fi
 
 # Root Directories
 GPUS="1" # GPU size for tensor_parallel.
-ROOT_DIR="benchmark_root" # the path that stores generated task samples and model predictions.
+ROOT_DIR="benchmark_template_sampling_params_8k_sparse_thresh" # the path that stores generated task samples and model predictions.
 MODEL_DIR="/root/.cache/huggingface/hub" # the path that contains individual model folders from HUggingface.
 ENGINE_DIR="." # the path that contains individual engine folders from TensorRT-LLM.
 BATCH_SIZE=1  # increase to improve GPU utilization
@@ -116,9 +116,10 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
             --model_name_or_path ${MODEL_PATH} \
-            --temperature ${TEMPERATURE} \
+            --repetition_penalty ${REPETITION_PENALTY} \
             --top_k ${TOP_K} \
             --top_p ${TOP_P} \
+            --temperature ${TEMPERATURE} \
             --batch_size ${BATCH_SIZE} \
             ${STOP_WORDS}
         end_time=$(date +%s)

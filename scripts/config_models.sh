@@ -12,16 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-TEMPERATURE="0.0" # greedy
+TEMPERATURE="0.0" # greedy  # TODO: MATCH QWEN-LM EXAMPLE?
 TOP_P="1.0"
 TOP_K="32"
+REPETITION_PENALTY="1.0"
 SEQ_LENGTHS=(
     131072
     65536
     32768
     16384
     8192
-    4096
+    # 4096
 )
 
 MODEL_SELECT() {
@@ -42,13 +43,21 @@ MODEL_SELECT() {
             ;;
         Qwen2.5-7B-Instruct-1M)
             MODEL_PATH="${MODEL_DIR}/models--Qwen--Qwen2.5-7B-Instruct-1M/snapshots/e28526f7bb80e2a9c8af03b831a9af3812f18fba/"
-            MODEL_TEMPLATE_TYPE="base"
+            MODEL_TEMPLATE_TYPE="qwen"
             MODEL_FRAMEWORK="vllm"
+            TEMPERATURE="0.7" # MATCH QWEN-LM EXAMPLE?
+            TOP_P="0.8"
+            TOP_K="20"
+            REPETITION_PENALTY="1.05"
             ;;
         Qwen2.5-14B-Instruct-1M)
             MODEL_PATH="${MODEL_DIR}/models--Qwen--Qwen2.5-14B-Instruct-1M/snapshots/620fad32de7bdd2293b3d99b39eba2fe63e97438/"
-            MODEL_TEMPLATE_TYPE="base"
+            MODEL_TEMPLATE_TYPE="qwen"
             MODEL_FRAMEWORK="vllm"
+            TEMPERATURE="0.7" # MATCH QWEN-LM EXAMPLE?
+            TOP_P="0.8"
+            TOP_K="20"
+            REPETITION_PENALTY="1.05"
             ;;
         jamba1.5-mini)
             MODEL_PATH="${MODEL_DIR}/Jamba-1.5-Mini"

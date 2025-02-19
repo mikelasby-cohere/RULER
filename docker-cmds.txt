@@ -44,3 +44,6 @@ docker run --runtime nvidia --gpus all \
     --tty \
     vllm/vllm-openai:latest \
     bash
+
+VLLM_ATTENTION_BACKEND=DUAL_CHUNK_FLASH_ATTN VLLM_ALLOW_LONG_MAX_MODEL_LEN=1 python ./serve_vllm_ruler.py --model Qwen/Qwen2.5-14B-Instruct-1M --tensor-parallel-size 4 --enforce-eager --enable-chunked-prefill
+VLLM_ATTENTION_BACKEND=DUAL_CHUNK_FLASH_ATTN VLLM_ALLOW_LONG_MAX_MODEL_LEN=1 python ./serve_vllm_ruler.py --model Qwen/Qwen2.5-7B-Instruct-1M --enforce-eager --enable-chunked-prefill

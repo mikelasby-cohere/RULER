@@ -143,6 +143,7 @@ class VLLMClient(Client):
         top_k,
         random_seed,
         stop: List[str],
+        repetition_penalty: float = 1.0,
     ):
         request = {
             "prompt": prompts[0],
@@ -151,6 +152,7 @@ class VLLMClient(Client):
             "top_k": top_k,
             "top_p": top_p,
             "stop": stop,
+            "repetition_penalty": repetition_penalty,
         }
         # TODO: random seed is not supported?
         outputs = self._send_request(request)

@@ -88,6 +88,7 @@ parser.add_argument("--stop_words", type=str, default='')
 parser.add_argument("--sliding_window_size", type=int)
 parser.add_argument("--threads", type=int, default=4)
 parser.add_argument("--batch_size", type=int, default=1)
+parser.add_argument("--repetition_penalty", type=float, default=1.0)
 
 args = parser.parse_args()
 args.stop_words = list(filter(None, args.stop_words.split(',')))
@@ -125,6 +126,7 @@ def get_llm(tokens_to_generate):
             random_seed=args.random_seed,
             stop=args.stop_words,
             tokens_to_generate=tokens_to_generate,
+            repetition_penalty=args.repetition_penalty
         )
 
     elif args.server_type == 'sglang':

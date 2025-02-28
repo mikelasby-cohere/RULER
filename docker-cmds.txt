@@ -8,10 +8,13 @@ docker run \
     --workdir /workspace/RULER/scripts \
     -v ~/RULER:/workspace/RULER \
     -v ~/.cache/huggingface:/root/.cache/huggingface \
+    -v ~/cohere_ckpt:/root/cohere_ckpt \
     cphsieh/ruler:0.2.0
     bash
 
    #  bash run.sh Qwen2.5-7B-Instruct-1M synthetic
+
+   bash run.sh c3_r7b synthetic 2>&1 | tee c3-r7b.log
 
 
 docker run \
@@ -47,3 +50,53 @@ docker run --runtime nvidia --gpus all \
 
 VLLM_ATTENTION_BACKEND=DUAL_CHUNK_FLASH_ATTN VLLM_ALLOW_LONG_MAX_MODEL_LEN=1 python ./serve_vllm_ruler.py --model Qwen/Qwen2.5-14B-Instruct-1M --tensor-parallel-size 4 --enforce-eager --enable-chunked-prefill
 VLLM_ATTENTION_BACKEND=DUAL_CHUNK_FLASH_ATTN VLLM_ALLOW_LONG_MAX_MODEL_LEN=1 python ./serve_vllm_ruler.py --model Qwen/Qwen2.5-7B-Instruct-1M --enforce-eager --enable-chunked-prefill
+
+# from vllm 
+# try to build below
+DOCKER_BUILDKIT=1 docker build . --target vllm-openai --tag vllm/vllm-openai --build-arg max_jobs=8 --build-arg nvcc_threads=2 --build-arg torch_cuda_arch_list=""
+
+# docker create container to inspect
+docker run --runtime nvidia --gpus all \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    -p 8000:8000 \
+    --ipc=host \
+    --tty \
+    --interactive \
+    --entrypoint bash \
+    --detach \
+    vllm/vllm-openai:latest
+
+# launch server
+docker run --runtime nvidia --gpus all \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    -p 8000:8000 \
+    --ipc=host \
+    vllm/vllm-openai:latest \
+    --model Qwen/Qwen2.5-7B-Instruct-1M \
+    --enforce-eager
+
+48 mins to build
+
+# launch 7b server
+python ./serve_vllm_ruler.py --model Qwen/Qwen2.5-7B-Instruct-1M --enforce-eager
+python ./serve_vllm_ruler.py --model Qwen/Qwen2.5-14B-Instruct-1M --tensor-parallel-size 4 --enforce-eager
+
+VLLM_ATTENTION_BACKEND=DUAL_CHUNK_FLASH_ATTN VLLM_ALLOW_LONG_MAX_MODEL_LEN=1 \
+    python ./serve_vllm_ruler.py --model Qwen/Qwen2.5-7B-Instruct-1M \
+    --enforce-eager --enable-chunked-prefill \
+    --hf-overrides '{"dual_chunk_attention_config": {"chunk_size": 262144, "local_size": 8192, "original_max_position_embeddings": 262144, "sparse_attention_threshold": 5000, "sparse_attention_last_q": 64}}'
+
+
+VLLM_ATTENTION_BACKEND=DUAL_CHUNK_FLASH_ATTN VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  \
+    python ./serve_vllm_ruler.py --model Qwen/Qwen2.5-14B-Instruct-1M \
+    --tensor-parallel-size 4 --enforce-eager --enable-chunked-prefill \
+    --hf-overrides '{"dual_chunk_attention_config": {"chunk_size": 262144, "local_size": 8192, "original_max_position_embeddings": 262144, "sparse_attention_threshold": 5000, "sparse_attention_last_q": 64}}'
+
+
+original sparse_attention_threshold = 32768
+conditional is > so -1 from desired sparse trigger point
+
+VLLM_ALLOW_LONG_MAX_MODEL_LEN=1 \
+    python ./serve_vllm.py --model /root/cohere_ckpt/c3-7b/c3-7b-hf/hugging_face/poseidon \
+    --tensor-parallel-size 1 --hf-overrides '{"max_position_embeddings": 256000}'
+

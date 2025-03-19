@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Templates = {  # TODO: Add custom qwen-2.5 template
+Templates = {
     'base': "{task_template}",
 
     'meta-chat': "[INST] {task_template} [/INST]",

@@ -19,10 +19,10 @@ REPETITION_PENALTY="1.0"
 SEQ_LENGTHS=(
     131072
     65536
-    # 32768
-    # 16384
-    # 8192
-    # 4096
+    32768
+    16384
+    8192
+    4096
 )
 
 MODEL_SELECT() {
@@ -103,7 +103,12 @@ MODEL_SELECT() {
             GEMINI_API_KEY=""
             ;;
         c3_r7b)
-            MODEL_PATH="/root/cohere_ckpt/c3-7b/c3-7b-hf/hugging_face/poseidon"
+            MODEL_PATH="/root/cohere_ckpt/c3-7b-hf/hugging_face/poseidon"
+            MODEL_TEMPLATE_TYPE="cohere"
+            MODEL_FRAMEWORK="vllm"
+            ;;
+        c3_r7b_sparse)
+            MODEL_PATH="/root/cohere_ckpt/c3-7b-hf/hugging_face/sparse"
             MODEL_TEMPLATE_TYPE="cohere"
             MODEL_FRAMEWORK="vllm"
             ;;

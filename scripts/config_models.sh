@@ -112,6 +112,16 @@ MODEL_SELECT() {
             MODEL_TEMPLATE_TYPE="cohere"
             MODEL_FRAMEWORK="vllm"
             ;;
+        c2_32b_sparse)
+            MODEL_PATH="/root/cohere_ckpt/sparse-r-32b"
+            MODEL_TEMPLATE_TYPE="cohere"
+            MODEL_FRAMEWORK="vllm"
+            ;;
+        c2_32b)
+            MODEL_PATH="/root/cohere_ckpt/command-r-32b"
+            MODEL_TEMPLATE_TYPE="cohere"
+            MODEL_FRAMEWORK="vllm"
+            ;;
     esac
 
 

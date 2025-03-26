@@ -44,7 +44,20 @@ python3 -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab')" && 
 bash run.sh c3_r7b_sparse synthetic 2>&1 | tee c3_r7b_sparse-sparsity_480v_480s-chunkedprefill_False-ruler_short.log
 bash run.sh c3_r7b_sparse synthetic 2>&1 | tee c3_r7b-sparse_480v_480s-chunkedprefill_True-8k-ruler_short.log
 bash run.sh c3_r7b_sparse synthetic 2>&1 | tee c3_r7b-sparse_2048v_2048s-chunkedprefill_True-8k-ruler_full.log
-bash run.sh c3_r7b_sparse synthetic 2>&1 | tee c3_r7b-sparse_8196v_8196s-chunkedprefill_True-8k-ruler_short
+bash run.sh c3_r7b_sparse synthetic 2>&1 | tee c3_r7b-sparse_8196v_8196s-chunkedprefill_True-8k-ruler_short.log
+bash run.sh c3_r7b_sparse synthetic 2>&1 | tee c3_r7b-sparse_8196v_8196s-chunkedprefill_False-8k-ruler_short.log
+bash run.sh c3_r7b_sparse synthetic 2>&1 | tee c3_r7b-sparse_32kv_32ks-chunkedprefill_True-8k-ruler_short.log
+bash run.sh c3_r7b_sparse synthetic 2>&1 | tee c3_r7b-sparse_2048v_2048s-chunkedprefill_True-8k-ruler_short-zero-init-buffer.log
+bash run.sh c3_r7b_sparse synthetic 2>&1 | tee c3_r7b-sparse_32kv_32ks-chunkedprefill_True-8k-ruler_short-buffer_init_zero-k-trunc_True.log
+bash run.sh c2_32b_sparse synthetic 2>&1 | tee c2_32b-sparse_2048v_2048s-chunkedprefill_True-8k-ruler_short-buffer_init_zero-k-trunc_True.log
+bash run.sh c2_32b_sparse synthetic 2>&1 | tee c2_32b-sparse_2048v_2048s-chunkedprefill_False-ruler_short-buffer_init_zero-k-trunc_True-max_seq_1.log
+bash run.sh c2_32b synthetic 2>&1 | tee c2_32b-dense-chunkedprefill_True-8k-ruler_short.log
+bash run.sh Qwen2.5-7B-Instruct-1M synthetic 2>&1 | tee  qwen-7b-dca-chunkedprefill_True_8k-ruler_short.log
+bash run.sh Qwen2.5-7B-Instruct-1M synthetic 2>&1 | tee  qwen-7b-dca-chunkedprefill_True_None-ruler_short.log
+
+bash run.sh Qwen2.5-7B-Instruct-1M synthetic 2>&1 | tee  qwen-7b-dca-REVERT-chunkedprefill_True_8k-ruler_short-sparse_threshold_1.log
+bash run.sh Qwen2.5-7B-Instruct-1M synthetic 2>&1 | tee  qwen-7b-dca-REBASE-chunkedprefill_True_8k-ruler_short-sparse_threshold_1.log
+
 
 docker run --runtime nvidia --gpus all \
     -v ~/.cache/huggingface:/root/.cache/huggingface \
@@ -116,3 +129,42 @@ NVIDIA_VISIBLE_DEVICES=0 VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND
     python scripts/pred/serve_vllm.py --model /root/cohere_ckpt/c3-7b-hf/hugging_face/sparse \
     --tensor-parallel-size 1 --enforce-eager --enable-chunked-prefill=True \
     --max-num-batched-tokens=8192 --hf-overrides '{"max_position_embeddings": 132000}'
+
+
+
+NVIDIA_VISIBLE_DEVICES=0 VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND=MINFERENCE_FLASH_ATTN \
+    python scripts/pred/serve_vllm.py --model /root/cohere_ckpt/c3-7b-hf/hugging_face/sparse \
+    --enable-chunked-prefill=False --tensor-parallel-size 1 --enforce-eager --hf-overrides '{"max_position_embeddings": 132000}'
+
+
+
+NVIDIA_VISIBLE_DEVICES=0 VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND=MINFERENCE_FLASH_ATTN \
+    python scripts/pred/serve_vllm.py --model /root/cohere_ckpt/sparse-r-32b \
+    --enable-chunked-prefill=True --max-num-batched-tokens=8192 --tensor-parallel-size 1 \
+    --enforce-eager --hf-overrides '{"max_position_embeddings": 33000}'
+
+NVIDIA_VISIBLE_DEVICES=0 VLLM_ALLOW_LONG_MAX_MODEL_LEN=1 \
+    python scripts/pred/serve_vllm.py --model /root/cohere_ckpt/command-r-32b \
+    --enable-chunked-prefill=True --max-num-batched-tokens=8192 --tensor-parallel-size 1 \
+    --hf-overrides '{"max_position_embeddings": 33000}'
+
+NVIDIA_VISIBLE_DEVICES=0 VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND=MINFERENCE_FLASH_ATTN \
+    python scripts/pred/serve_vllm.py --model /root/cohere_ckpt/sparse-r-32b \
+    --enable-chunked-prefill=False --tensor-parallel-size 1 --max-num-seqs 1 \
+    --enforce-eager --hf-overrides '{"max_position_embeddings": 33000}'
+
+
+NVIDIA_VISIBLE_DEVICES=0 VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND=DUAL_CHUNK_FLASH_ATTN \
+    python scripts/pred/serve_vllm.py --model ~/.cache/huggingface/hub/models--Qwen--Qwen2.5-7B-Instruct-1M/snapshots/e28526f7bb80e2a9c8af03b831a9af3812f18fba \
+    --enable-chunked-prefill=True --max-num-batched-tokens 8196 --tensor-parallel-size 1 \
+    --enforce-eager --hf-overrides '{"max_position_embeddings": 135000}'
+
+NVIDIA_VISIBLE_DEVICES=0 VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND=DUAL_CHUNK_FLASH_ATTN \
+    python scripts/pred/serve_vllm.py --model ~/.cache/huggingface/hub/models--Qwen--Qwen2.5-7B-Instruct-1M/snapshots/e28526f7bb80e2a9c8af03b831a9af3812f18fba \
+    --enable-chunked-prefill=True --tensor-parallel-size 1 --max-num-batched-tokens 8196 \
+    --enforce-eager --hf-overrides '{"dual_chunk_attention_config": {"chunk_size": 262144, "local_size": 8192, "original_max_position_embeddings": 262144, "sparse_attention_threshold": 1, "sparse_attention_last_q": 64}}'
+
+NVIDIA_VISIBLE_DEVICES=0 VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND=DUAL_CHUNK_FLASH_ATTN \
+    python scripts/pred/serve_vllm.py --model ~/.cache/huggingface/hub/models--Qwen--Qwen2.5-7B-Instruct-1M/snapshots/e28526f7bb80e2a9c8af03b831a9af3812f18fba \
+    --enable-chunked-prefill=True --tensor-parallel-size 1  --max-num-batched-tokens 8196 \
+    --enforce-eager --hf-overrides '{"dual_chunk_attention_config": {"chunk_size": 262144, "local_size": 8192, "original_max_position_embeddings": 262144, "sparse_attention_threshold": 1, "sparse_attention_last_q": 64}}'

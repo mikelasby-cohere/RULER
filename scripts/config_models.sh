@@ -122,6 +122,11 @@ MODEL_SELECT() {
             MODEL_TEMPLATE_TYPE="cohere"
             MODEL_FRAMEWORK="vllm"
             ;;
+        command-a)
+            MODEL_PATH="/root/cohere_ckpt/command-a-hf"
+            MODEL_TEMPLATE_TYPE="cohere"
+            MODEL_FRAMEWORK="vllm"
+            ;;
     esac
 
 

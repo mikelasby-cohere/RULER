@@ -57,7 +57,7 @@ bash run.sh Qwen2.5-7B-Instruct-1M synthetic 2>&1 | tee  qwen-7b-dca-chunkedpref
 
 bash run.sh Qwen2.5-7B-Instruct-1M synthetic 2>&1 | tee  qwen-7b-dca-REVERT-chunkedprefill_True_8k-ruler_short-sparse_threshold_1.log
 bash run.sh Qwen2.5-7B-Instruct-1M synthetic 2>&1 | tee  qwen-7b-dca-REBASE-chunkedprefill_True_8k-ruler_short-sparse_threshold_1.log
-
+bash run.sh command-a synthetic
 
 docker run --runtime nvidia --gpus all \
     -v ~/.cache/huggingface:/root/.cache/huggingface \
@@ -168,3 +168,20 @@ NVIDIA_VISIBLE_DEVICES=0 VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND
     python scripts/pred/serve_vllm.py --model ~/.cache/huggingface/hub/models--Qwen--Qwen2.5-7B-Instruct-1M/snapshots/e28526f7bb80e2a9c8af03b831a9af3812f18fba \
     --enable-chunked-prefill=True --tensor-parallel-size 1  --max-num-batched-tokens 8196 \
     --enforce-eager --hf-overrides '{"dual_chunk_attention_config": {"chunk_size": 262144, "local_size": 8192, "original_max_position_embeddings": 262144, "sparse_attention_threshold": 1, "sparse_attention_last_q": 64}}'
+
+
+VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND=MINFERENCE_FLASH_ATTN \
+    python scripts/pred/serve_vllm.py --model ~/cohere_ckpt/command-a-sparse \
+    --enable-chunked-prefill=True --tensor-parallel-size 4 \
+    --gpu-memory-utilization=0.90 --disable-custom-all-reduce \
+    --max-num-batched-tokens=8196 --quantization='compressed-tensors' \
+    --enforce-eager --hf-overrides '{"max_position_embeddings": 288000}' \
+    --max-model-len 288000
+
+VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND=MINFERENCE_FLASH_ATTN \
+    python scripts/pred/serve_vllm.py --model ~/cohere_ckpt/command-a-hf-fp8 \
+    --enable-chunked-prefill=True --tensor-parallel-size 4 \
+    --gpu-memory-utilization=0.90 --disable-custom-all-reduce \
+    --quantization='compressed-tensors' \
+    --max-num-batched-tokens=8196 --enforce-eager --hf-overrides '{"max_position_embeddings": 288000}' \
+    --max-model-len 288000

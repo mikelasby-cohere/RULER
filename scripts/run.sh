@@ -24,7 +24,9 @@ fi
 
 # Root Directories
 GPUS="1" # GPU size for tensor_parallel.
-ROOT_DIR="../outputs/cmd-a-w8a8-65k-sparsity-threshold-sparse_2048v_2048s-chunkedprefill_8k-ruler_full" # the path that stores generated task samples and model predictions.
+# ROOT_DIR="../outputs/cmd-a-w8a8-65k-sparsity-threshold-sparse_2048v_2048s-chunkedprefill_8k-ruler_full-missing-runs" # the path that stores generated task samples and model predictions.
+ROOT_DIR="../outputs/cmd-a-w8a8-flash-attn-chunkedprefill_8k-ruler_full-missing-runs" # the path that stores generated task samples and model predictions.
+# ROOT_DIR="../outputs/cmd-a-w8a8-65k-spar-attn-chunkedprefill_8k-ruler_full" # the path that stores generated task samples and model predictions.
 MODEL_DIR="/root/.cache/huggingface/hub" # the path that contains individual model folders from HUggingface.
 ENGINE_DIR="." # the path that contains individual engine folders from TensorRT-LLM.
 BATCH_SIZE=1  # increase to improve GPU utilization

@@ -181,7 +181,23 @@ VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND=MINFERENCE_FLASH_ATTN \
 VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND=MINFERENCE_FLASH_ATTN \
     python scripts/pred/serve_vllm.py --model ~/cohere_ckpt/command-a-hf-fp8 \
     --enable-chunked-prefill=True --tensor-parallel-size 4 \
+    --gpu-memory-utilization=0.875 --disable-custom-all-reduce \
+    --quantization='compressed-tensors' \
+    --max-num-batched-tokens=8196 --enforce-eager --hf-overrides '{"max_position_embeddings": 288000}' \
+    --max-model-len 288000
+
+VLLM_ALLOW_LONG_MAX_MODEL_LEN=1 VLLM_USE_V1=0 \
+    python scripts/pred/serve_vllm.py --model ~/cohere_ckpt/command-a-hf-fp8 \
+    --enable-chunked-prefill=True --tensor-parallel-size 4 \
     --gpu-memory-utilization=0.90 --disable-custom-all-reduce \
     --quantization='compressed-tensors' \
     --max-num-batched-tokens=8196 --enforce-eager --hf-overrides '{"max_position_embeddings": 288000}' \
+    --max-model-len 288000
+
+VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  VLLM_ATTENTION_BACKEND=MINFERENCE_FLASH_ATTN \
+    python scripts/pred/serve_vllm.py --model ~/cohere_ckpt/command-a-hf-fp8 \
+    --enable-chunked-prefill=True --tensor-parallel-size 4 \
+    --gpu-memory-utilization=0.875 --disable-custom-all-reduce \
+    --quantization='compressed-tensors' \
+    --max-num-batched-tokens=32768 --enforce-eager --hf-overrides '{"max_position_embeddings": 288000}' \
     --max-model-len 288000
